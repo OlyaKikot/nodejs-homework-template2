@@ -3,6 +3,7 @@ const { BadRequest, Conflict, Unauthorized } = require("http-errors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { User } = require("../../model/user");
+const gravatar = require("gravatar");
 
 const { joiRegisterSchema, joiLoginSchema } = require("../../model/user");
 const router = express.Router();
@@ -23,7 +24,13 @@ router.post("/register", async (req, res, next) => {
     }
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
-    const newUser = await User.create({ name, email, password: hashPassword });
+    const avatarURL = gravatar.url(email);
+    const newUser = await User.create({
+      name,
+      email,
+      password: hashPassword,
+      avatarURL,
+    });
     res.status(201).json({
       user: {
         name: newUser.name,
